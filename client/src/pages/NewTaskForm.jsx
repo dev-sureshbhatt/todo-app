@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 const NewTaskForm = () => {
+
+    //Handling form data state 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -8,6 +10,7 @@ const NewTaskForm = () => {
     dueDate: ''
   });
 
+  //handling form data state change by using e.target.name and e.target.value properties from input form elements
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -16,10 +19,16 @@ const NewTaskForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  //handling what happens on form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Handle form submission
     console.log(formData);
+    const createNewTaskRequest = await fetch('http://localhost:4000/tasks', {
+        method: 'POST',
+        headers: {'Content-Type' : 'application/json'},
+        body: JSON.stringify(formData)
+    })
   };
 
   return (
@@ -59,6 +68,7 @@ const NewTaskForm = () => {
         </label>
         <select
           id="status"
+          required
           name="status"
           value={formData.status}
           onChange={handleChange}
@@ -77,6 +87,7 @@ const NewTaskForm = () => {
         <input
           type="date"
           id="dueDate"
+          required
           name="dueDate"
           value={formData.dueDate}
           onChange={handleChange}
