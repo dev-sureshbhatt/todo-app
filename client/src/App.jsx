@@ -1,5 +1,6 @@
 import {Routes, Route, BrowserRouter} from 'react-router-dom'
 import NewTaskForm from './pages/NewTaskForm'
+import TaskList from './pages/TasksList'
 
 function App() {
   
@@ -8,7 +9,9 @@ function App() {
     <>
 <BrowserRouter>
     <Routes>
-      <Route index element={<NewTaskForm />} />
+      <Route index element={<TaskList />} />
+      <Route path='/new' element={<NewTaskForm />} />
+      <Route path="/edit/:id" element={<NewTaskForm />} />
 
     </Routes>
 </BrowserRouter>

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
-const NewTaskForm = () => {
-
-    //Handling form data state 
+const TaskForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -10,7 +12,18 @@ const NewTaskForm = () => {
     dueDate: ''
   });
 
-  //handling form data state change by using e.target.name and e.target.value properties from input form elements
+  useEffect(() => {
+    if (id) {
+      axios.get(`http://localhost:4000/tasks/${id}`)
+        .then(response => {
+          setFormData(response.data);
+        })
+        .catch(error => {
+          console.error('There was an error fetching the task!', error);
+        });
+    }
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -19,19 +32,23 @@ const NewTaskForm = () => {
     });
   };
 
-  //handling what happens on form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
-    const createNewTaskRequest = await fetch('http://localhost:4000/tasks', {
-        method: 'POST',
-        headers: {'Content-Type' : 'application/json'},
-        body: JSON.stringify(formData)
-    })
+    const apiCall = id ? axios.put : axios.post;
+    const url = id ? `http://localhost:4000/tasks/${id}` : 'http://localhost:4000/tasks';
+
+    apiCall(url, formData)
+      .then(() => {
+        navigate('/');
+      })
+      .catch(error => {
+        console.error('There was an error submitting the form!', error);
+      });
   };
 
   return (
+    <div className=' h-screen'>
+        <h1 className='text-center py-9'>Assignment by Suresh Bhatt for AI Certs</h1>
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
@@ -68,7 +85,6 @@ const NewTaskForm = () => {
         </label>
         <select
           id="status"
-          required
           name="status"
           value={formData.status}
           onChange={handleChange}
@@ -87,7 +103,6 @@ const NewTaskForm = () => {
         <input
           type="date"
           id="dueDate"
-          required
           name="dueDate"
           value={formData.dueDate}
           onChange={handleChange}
@@ -100,11 +115,12 @@ const NewTaskForm = () => {
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
-          Add Todo
+          {id ? 'Update Task' : 'Add Task'}
         </button>
       </div>
     </form>
+    </div>
   );
 };
 
-export default NewTaskForm;
+export default TaskForm;
